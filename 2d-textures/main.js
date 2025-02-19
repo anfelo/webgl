@@ -245,7 +245,7 @@ function main() {
 
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    setGeometry(gl);
+    setGeometryAndTexcoords(gl);
 
     // create an EBO to instruct webgl how to paint the rectangle with the
     // previous positions
@@ -253,9 +253,14 @@ function main() {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
     setGeometryIndices(gl);
 
-    const texcoordBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
-    setTexcoords(gl);
+    // set position attribute
+    // each float takes 4 bytes and each vertex has 4 elements
+    // (2 * position and 2 * texcoords)
+    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 4 * 4, 0);
+    gl.enableVertexAttribArray(positionAttributeLocation);
+    // set texture attribute
+    gl.vertexAttribPointer(texcoordAttributeLocation, 2, gl.FLOAT, false, 4 * 4, 4 * 2);
+    gl.enableVertexAttribArray(texcoordAttributeLocation);
 
     // Create a texture.
     const texture = gl.createTexture();
@@ -266,6 +271,7 @@ function main() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
     // Asynchronously load an image
     const image = new Image();
@@ -293,22 +299,10 @@ function main() {
         // Clear the canvas.
         gl.clear(gl.COLOR_BUFFER_BIT);
 
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+
         // Tell it to use our program (pair of shaders)
         gl.useProgram(program);
-
-        // Turn on the attribute
-        gl.enableVertexAttribArray(positionAttributeLocation);
-
-        // Bind the position buffer.
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-        // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-        gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-
-        gl.enableVertexAttribArray(texcoordAttributeLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
-        // We'll supply texcoords as floats.
-        gl.vertexAttribPointer(texcoordAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
         // Apply matrix transformations
         let matrix = m3.projection(state.canvasWidth, state.canvasHeight);
@@ -328,19 +322,21 @@ function main() {
 }
 
 /**
- * Fills the buffer with the values that define a triangle.
+ * Fills the buffer with the values that define a rectangle and
+ * its texture.
  * Note, will put the values in whatever buffer is currently
  * bound to the ARRAY_BUFFER bind point
  * @param {WebGLRenderingContext} gl
  */
-function setGeometry(gl) {
+function setGeometryAndTexcoords(gl) {
     gl.bufferData(
         gl.ARRAY_BUFFER,
         new Float32Array([
-            10, 20, // top left
-            310, 20, // top right
-            10, 320, // bottom left
-            310, 320 // bottom right
+            // position   // texcoords
+            10, 20,       0, 1,        // top left
+            310, 20,      1, 1,        // top right
+            10, 320,      0, 0,        // bottom left
+            310, 320,     1, 0         // bottom right
         ]),
         gl.STATIC_DRAW
     );
@@ -357,23 +353,6 @@ function setGeometryIndices(gl) {
             0, 1,
             2, 1,
             2, 3
-        ]),
-        gl.STATIC_DRAW
-    );
-}
-
-/**
- * Fills the buffer with the texture coords.
- * @param {WebGLRenderingContext} gl
- */
-function setTexcoords(gl) {
-    gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([
-            0, 1,
-            1, 1,
-            0, 0,
-            1, 0
         ]),
         gl.STATIC_DRAW
     );
