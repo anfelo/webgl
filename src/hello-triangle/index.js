@@ -66,7 +66,7 @@ function createProgram(gl, vertexShader, fragmentShader) {
     gl.deleteProgram(program)
 }
 
-function main() {
+export function helloTriangle() {
     const canvas = document.querySelector("#c")
 
     const gl = canvas.getContext("webgl")
@@ -96,6 +96,13 @@ function main() {
     gl.clearColor(0, 0, 0, 0)
     gl.clear(gl.COLOR_BUFFER_BIT)
 
+    // Disable the depth buffer
+    gl.disable(gl.DEPTH_TEST);
+
+    // Turn off culling. By default backfacing triangles
+    // will be culled.
+    gl.disable(gl.CULL_FACE);
+
     // Tell it to use our program (pair of shaders)
     gl.useProgram(program)
 
@@ -119,5 +126,3 @@ function main() {
     const count = 3
     gl.drawArrays(primitiveType, offset, count)
 }
-
-main()

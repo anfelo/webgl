@@ -22,7 +22,7 @@ void main() {
 }`;
 
 const m4 = {
-    multiply: function(a, b) {
+    multiply: function (a, b) {
         const b00 = b[0 * 4 + 0];
         const b01 = b[0 * 4 + 1];
         const b02 = b[0 * 4 + 2];
@@ -72,118 +72,92 @@ const m4 = {
             b30 * a00 + b31 * a10 + b32 * a20 + b33 * a30,
             b30 * a01 + b31 * a11 + b32 * a21 + b33 * a31,
             b30 * a02 + b31 * a12 + b32 * a22 + b33 * a32,
-            b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33,
+            b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33
         ];
     },
 
-    projection: function(width, height, depth) {
+    projection: function (width, height, depth) {
         // Note: This matrix flips the Y axis so 0 is at the top.
-        return [
-            2 / width, 0, 0, 0,
-            0, -2 / height, 0, 0,
-            0, 0, 2 / depth, 0,
-            -1, 1, 0, 1,
-        ];
+        return [2 / width, 0, 0, 0, 0, -2 / height, 0, 0, 0, 0, 2 / depth, 0, -1, 1, 0, 1];
     },
 
-    orthographic: function(left, right, bottom, top, near, far) {
+    orthographic: function (left, right, bottom, top, near, far) {
         return [
-            2 / (right - left), 0, 0, 0,
-            0, 2 / (top - bottom), 0, 0,
-            0, 0, 2 / (near - far), 0,
+            2 / (right - left),
+            0,
+            0,
+            0,
+            0,
+            2 / (top - bottom),
+            0,
+            0,
+            0,
+            0,
+            2 / (near - far),
+            0,
 
             (left + right) / (left - right),
             (bottom + top) / (bottom - top),
             (near + far) / (near - far),
-            1,
+            1
         ];
     },
 
-    perspective: function(fieldOfViewInRadians, aspect, near, far) {
+    perspective: function (fieldOfViewInRadians, aspect, near, far) {
         const f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians);
         const rangeInv = 1.0 / (near - far);
 
-        return [
-            f / aspect, 0, 0, 0,
-            0, f, 0, 0,
-            0, 0, (near + far) * rangeInv, -1,
-            0, 0, near * far * rangeInv * 2, 0
-        ];
+        return [f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (near + far) * rangeInv, -1, 0, 0, near * far * rangeInv * 2, 0];
     },
 
-    translation: function(tx, ty, tz) {
-        return [
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            tx, ty, tz, 1,
-        ];
+    translation: function (tx, ty, tz) {
+        return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1];
     },
 
-    xRotation: function(angleInRadians) {
+    xRotation: function (angleInRadians) {
         const c = Math.cos(angleInRadians);
         const s = Math.sin(angleInRadians);
 
-        return [
-            1, 0, 0, 0,
-            0, c, s, 0,
-            0, -s, c, 0,
-            0, 0, 0, 1,
-        ];
+        return [1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1];
     },
 
-    yRotation: function(angleInRadians) {
+    yRotation: function (angleInRadians) {
         const c = Math.cos(angleInRadians);
         const s = Math.sin(angleInRadians);
 
-        return [
-            c, 0, -s, 0,
-            0, 1, 0, 0,
-            s, 0, c, 0,
-            0, 0, 0, 1,
-        ];
+        return [c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1];
     },
 
-    zRotation: function(angleInRadians) {
+    zRotation: function (angleInRadians) {
         const c = Math.cos(angleInRadians);
         const s = Math.sin(angleInRadians);
 
-        return [
-            c, s, 0, 0,
-            -s, c, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1,
-        ];
+        return [c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     },
 
-    scaling: function(sx, sy, sz) {
-        return [
-            sx, 0, 0, 0,
-            0, sy, 0, 0,
-            0, 0, sz, 0,
-            0, 0, 0, 1,
-        ];
+    scaling: function (sx, sy, sz) {
+        return [sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1];
     },
 
-    translate: function(m, tx, ty, tz) {
+    translate: function (m, tx, ty, tz) {
         return m4.multiply(m, m4.translation(tx, ty, tz));
     },
 
-    xRotate: function(m, angleInRadians) {
+    xRotate: function (m, angleInRadians) {
         return m4.multiply(m, m4.xRotation(angleInRadians));
     },
 
-    yRotate: function(m, angleInRadians) {
+    yRotate: function (m, angleInRadians) {
         return m4.multiply(m, m4.yRotation(angleInRadians));
     },
 
-    zRotate: function(m, angleInRadians) {
+    zRotate: function (m, angleInRadians) {
         return m4.multiply(m, m4.zRotation(angleInRadians));
     },
 
-    scale: function(m, sx, sy, sz) {
+    scale: function (m, sx, sy, sz) {
         return m4.multiply(m, m4.scaling(sx, sy, sz));
-    },
+    }
 };
 
 /**
@@ -249,9 +223,7 @@ function createProgram(gl, vertexShader, fragmentShader) {
     gl.deleteProgram(program);
 }
 
-function initDebugUI(state, onChangeCallback) {
-    const gui = new dat.gui.GUI();
-
+function initDebugUI(gui, state, onChangeCallback) {
     gui.remember(state);
 
     const f0 = gui.addFolder("Camera");
@@ -329,16 +301,17 @@ function initDebugUI(state, onChangeCallback) {
 }
 
 function radToDeg(r) {
-    return r * 180 / Math.PI;
+    return (r * 180) / Math.PI;
 }
 
 function degToRad(d) {
-    return d * Math.PI / 180;
+    return (d * Math.PI) / 180;
 }
 
-function main() {
+export function going3D(gui) {
     /** @type {HTMLCanvasElement} */
     const canvas = document.querySelector("#c");
+
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -363,7 +336,7 @@ function main() {
         scaleZ: 1
     };
 
-    initDebugUI(state, drawScene);
+    initDebugUI(gui, state, drawScene);
 
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
     const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
@@ -450,134 +423,55 @@ function setGeometry(gl) {
         gl.ARRAY_BUFFER,
         new Float32Array([
             // left column front
-            0,   0,  0,
-            0, 150,  0,
-            30,   0,  0,
-            0, 150,  0,
-            30, 150,  0,
-            30,   0,  0,
+            0, 0, 0, 0, 150, 0, 30, 0, 0, 0, 150, 0, 30, 150, 0, 30, 0, 0,
 
             // top rung front
-            30,   0,  0,
-            30,  30,  0,
-            100,   0,  0,
-            30,  30,  0,
-            100,  30,  0,
-            100,   0,  0,
+            30, 0, 0, 30, 30, 0, 100, 0, 0, 30, 30, 0, 100, 30, 0, 100, 0, 0,
 
             // middle rung front
-            30,  60,  0,
-            30,  90,  0,
-            67,  60,  0,
-            30,  90,  0,
-            67,  90,  0,
-            67,  60,  0,
+            30, 60, 0, 30, 90, 0, 67, 60, 0, 30, 90, 0, 67, 90, 0, 67, 60, 0,
 
             // left column back
-            0,   0,  30,
-            30,   0,  30,
-            0, 150,  30,
-            0, 150,  30,
-            30,   0,  30,
-            30, 150,  30,
+            0, 0, 30, 30, 0, 30, 0, 150, 30, 0, 150, 30, 30, 0, 30, 30, 150, 30,
 
             // top rung back
-            30,   0,  30,
-            100,   0,  30,
-            30,  30,  30,
-            30,  30,  30,
-            100,   0,  30,
-            100,  30,  30,
+            30, 0, 30, 100, 0, 30, 30, 30, 30, 30, 30, 30, 100, 0, 30, 100, 30, 30,
 
             // middle rung back
-            30,  60,  30,
-            67,  60,  30,
-            30,  90,  30,
-            30,  90,  30,
-            67,  60,  30,
-            67,  90,  30,
+            30, 60, 30, 67, 60, 30, 30, 90, 30, 30, 90, 30, 67, 60, 30, 67, 90, 30,
 
             // top
-            0,   0,   0,
-            100,   0,   0,
-            100,   0,  30,
-            0,   0,   0,
-            100,   0,  30,
-            0,   0,  30,
+            0, 0, 0, 100, 0, 0, 100, 0, 30, 0, 0, 0, 100, 0, 30, 0, 0, 30,
 
             // top rung right
-            100,   0,   0,
-            100,  30,   0,
-            100,  30,  30,
-            100,   0,   0,
-            100,  30,  30,
-            100,   0,  30,
+            100, 0, 0, 100, 30, 0, 100, 30, 30, 100, 0, 0, 100, 30, 30, 100, 0, 30,
 
             // under top rung
-            30,   30,   0,
-            30,   30,  30,
-            100,  30,  30,
-            30,   30,   0,
-            100,  30,  30,
-            100,  30,   0,
+            30, 30, 0, 30, 30, 30, 100, 30, 30, 30, 30, 0, 100, 30, 30, 100, 30, 0,
 
             // between top rung and middle
-            30,   30,   0,
-            30,   60,  30,
-            30,   30,  30,
-            30,   30,   0,
-            30,   60,   0,
-            30,   60,  30,
+            30, 30, 0, 30, 60, 30, 30, 30, 30, 30, 30, 0, 30, 60, 0, 30, 60, 30,
 
             // top of middle rung
-            30,   60,   0,
-            67,   60,  30,
-            30,   60,  30,
-            30,   60,   0,
-            67,   60,   0,
-            67,   60,  30,
+            30, 60, 0, 67, 60, 30, 30, 60, 30, 30, 60, 0, 67, 60, 0, 67, 60, 30,
 
             // right of middle rung
-            67,   60,   0,
-            67,   90,  30,
-            67,   60,  30,
-            67,   60,   0,
-            67,   90,   0,
-            67,   90,  30,
+            67, 60, 0, 67, 90, 30, 67, 60, 30, 67, 60, 0, 67, 90, 0, 67, 90, 30,
 
             // bottom of middle rung.
-            30,   90,   0,
-            30,   90,  30,
-            67,   90,  30,
-            30,   90,   0,
-            67,   90,  30,
-            67,   90,   0,
+            30, 90, 0, 30, 90, 30, 67, 90, 30, 30, 90, 0, 67, 90, 30, 67, 90, 0,
 
             // right of bottom
-            30,   90,   0,
-            30,  150,  30,
-            30,   90,  30,
-            30,   90,   0,
-            30,  150,   0,
-            30,  150,  30,
+            30, 90, 0, 30, 150, 30, 30, 90, 30, 30, 90, 0, 30, 150, 0, 30, 150, 30,
 
             // bottom
-            0,   150,   0,
-            0,   150,  30,
-            30,  150,  30,
-            0,   150,   0,
-            30,  150,  30,
-            30,  150,   0,
+            0, 150, 0, 0, 150, 30, 30, 150, 30, 0, 150, 0, 30, 150, 30, 30, 150, 0,
 
             // left side
-            0,   0,   0,
-            0,   0,  30,
-            0, 150,  30,
-            0,   0,   0,
-            0, 150,  30,
-            0, 150,   0
+            0, 0, 0, 0, 0, 30, 0, 150, 30, 0, 0, 0, 0, 150, 30, 0, 150, 0
         ]),
-        gl.STATIC_DRAW);
+        gl.STATIC_DRAW
+    );
 }
 
 // Fill the buffer with colors for the 'F'.
@@ -585,135 +479,54 @@ function setColors(gl) {
     gl.bufferData(
         gl.ARRAY_BUFFER,
         new Uint8Array([
-              // left column front
-            200,  70, 120,
-            200,  70, 120,
-            200,  70, 120,
-            200,  70, 120,
-            200,  70, 120,
-            200,  70, 120,
+            // left column front
+            200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120,
 
-              // top rung front
-            200,  70, 120,
-            200,  70, 120,
-            200,  70, 120,
-            200,  70, 120,
-            200,  70, 120,
-            200,  70, 120,
+            // top rung front
+            200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120,
 
-              // middle rung front
-            200,  70, 120,
-            200,  70, 120,
-            200,  70, 120,
-            200,  70, 120,
-            200,  70, 120,
-            200,  70, 120,
+            // middle rung front
+            200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120, 200, 70, 120,
 
-              // left column back
-            80, 70, 200,
-            80, 70, 200,
-            80, 70, 200,
-            80, 70, 200,
-            80, 70, 200,
-            80, 70, 200,
+            // left column back
+            80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200,
 
-              // top rung back
-            80, 70, 200,
-            80, 70, 200,
-            80, 70, 200,
-            80, 70, 200,
-            80, 70, 200,
-            80, 70, 200,
+            // top rung back
+            80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200,
 
-              // middle rung back
-            80, 70, 200,
-            80, 70, 200,
-            80, 70, 200,
-            80, 70, 200,
-            80, 70, 200,
-            80, 70, 200,
+            // middle rung back
+            80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200, 80, 70, 200,
 
-              // top
-            70, 200, 210,
-            70, 200, 210,
-            70, 200, 210,
-            70, 200, 210,
-            70, 200, 210,
-            70, 200, 210,
+            // top
+            70, 200, 210, 70, 200, 210, 70, 200, 210, 70, 200, 210, 70, 200, 210, 70, 200, 210,
 
-              // top rung right
-            200, 200, 70,
-            200, 200, 70,
-            200, 200, 70,
-            200, 200, 70,
-            200, 200, 70,
-            200, 200, 70,
+            // top rung right
+            200, 200, 70, 200, 200, 70, 200, 200, 70, 200, 200, 70, 200, 200, 70, 200, 200, 70,
 
-              // under top rung
-            210, 100, 70,
-            210, 100, 70,
-            210, 100, 70,
-            210, 100, 70,
-            210, 100, 70,
-            210, 100, 70,
+            // under top rung
+            210, 100, 70, 210, 100, 70, 210, 100, 70, 210, 100, 70, 210, 100, 70, 210, 100, 70,
 
-              // between top rung and middle
-            210, 160, 70,
-            210, 160, 70,
-            210, 160, 70,
-            210, 160, 70,
-            210, 160, 70,
-            210, 160, 70,
+            // between top rung and middle
+            210, 160, 70, 210, 160, 70, 210, 160, 70, 210, 160, 70, 210, 160, 70, 210, 160, 70,
 
-              // top of middle rung
-            70, 180, 210,
-            70, 180, 210,
-            70, 180, 210,
-            70, 180, 210,
-            70, 180, 210,
-            70, 180, 210,
+            // top of middle rung
+            70, 180, 210, 70, 180, 210, 70, 180, 210, 70, 180, 210, 70, 180, 210, 70, 180, 210,
 
-              // right of middle rung
-            100, 70, 210,
-            100, 70, 210,
-            100, 70, 210,
-            100, 70, 210,
-            100, 70, 210,
-            100, 70, 210,
+            // right of middle rung
+            100, 70, 210, 100, 70, 210, 100, 70, 210, 100, 70, 210, 100, 70, 210, 100, 70, 210,
 
-              // bottom of middle rung.
-            76, 210, 100,
-            76, 210, 100,
-            76, 210, 100,
-            76, 210, 100,
-            76, 210, 100,
-            76, 210, 100,
+            // bottom of middle rung.
+            76, 210, 100, 76, 210, 100, 76, 210, 100, 76, 210, 100, 76, 210, 100, 76, 210, 100,
 
-              // right of bottom
-            140, 210, 80,
-            140, 210, 80,
-            140, 210, 80,
-            140, 210, 80,
-            140, 210, 80,
-            140, 210, 80,
+            // right of bottom
+            140, 210, 80, 140, 210, 80, 140, 210, 80, 140, 210, 80, 140, 210, 80, 140, 210, 80,
 
-              // bottom
-            90, 130, 110,
-            90, 130, 110,
-            90, 130, 110,
-            90, 130, 110,
-            90, 130, 110,
-            90, 130, 110,
+            // bottom
+            90, 130, 110, 90, 130, 110, 90, 130, 110, 90, 130, 110, 90, 130, 110, 90, 130, 110,
 
-              // left side
-            160, 160, 220,
-            160, 160, 220,
-            160, 160, 220,
-            160, 160, 220,
-            160, 160, 220,
-            160, 160, 220
+            // left side
+            160, 160, 220, 160, 160, 220, 160, 160, 220, 160, 160, 220, 160, 160, 220, 160, 160, 220
         ]),
-    gl.STATIC_DRAW);
+        gl.STATIC_DRAW
+    );
 }
-
-main();

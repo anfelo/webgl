@@ -99,9 +99,7 @@ function createProgram(gl, vertexShader, fragmentShader) {
     gl.deleteProgram(program)
 }
 
-function initDebugUI(state, onChangeCallback) {
-    const gui = new dat.gui.GUI();
-
+function initDebugUI(gui, state, onChangeCallback) {
     gui.remember(state);
 
     gui.add(state, 'angleInDegrees').min(0).max(360).step(1).onChange(() => {
@@ -119,7 +117,7 @@ function initDebugUI(state, onChangeCallback) {
     f2.add(state, 'scaleY').min(-5).max(5).step(0.1).onChange(() => onChangeCallback())
 }
 
-function main() {
+export function transform2D(gui) {
     /** @type {HTMLCanvasElement} */
     const canvas = document.querySelector("#c");
     const gl = canvas.getContext("webgl");
@@ -138,7 +136,7 @@ function main() {
         scaleY: 1,
     };
 
-    initDebugUI(state, drawScene);
+    initDebugUI(gui, state, drawScene);
 
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
     const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource)
@@ -178,6 +176,13 @@ function main() {
 
         // Clear the canvas.
         gl.clear(gl.COLOR_BUFFER_BIT);
+
+        // Disable the depth buffer
+        gl.disable(gl.DEPTH_TEST);
+
+        // Turn off culling. By default backfacing triangles
+        // will be culled.
+        gl.disable(gl.CULL_FACE);
 
         // Tell it to use our program (pair of shaders)
         gl.useProgram(program);
@@ -257,5 +262,3 @@ function setGeometry(gl) {
       ]),
       gl.STATIC_DRAW);
 }
-
-main()

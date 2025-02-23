@@ -1,3 +1,5 @@
+import woodenShelf from '/wooden_shelf.jpg'
+
 const vertexShaderSource = `
 attribute vec2 a_position;
 attribute vec2 a_texcoord;
@@ -57,39 +59,23 @@ const m3 = {
     },
 
     translation: function (tx, ty) {
-        return [
-            1, 0, 0,
-            0, 1, 0,
-            tx, ty, 1
-         ];
+        return [1, 0, 0, 0, 1, 0, tx, ty, 1];
     },
 
     rotation: function (angleInRadians) {
         var c = Math.cos(angleInRadians);
         var s = Math.sin(angleInRadians);
-        return [
-            c, -s, 0,
-            s, c, 0,
-            0, 0, 1
-        ];
+        return [c, -s, 0, s, c, 0, 0, 0, 1];
     },
 
     scaling: function (sx, sy) {
-        return [
-            sx, 0, 0,
-            0, sy, 0,
-            0, 0, 1
-        ];
+        return [sx, 0, 0, 0, sy, 0, 0, 0, 1];
     },
 
     // This projection matrix is used to convert from pixels to clipspace
     projection: function (width, height) {
         // Note: This matrix flips the Y axis so that 0 is at the top.
-        return [
-            2 / width, 0, 0,
-            0, -2 / height, 0,
-            -1, 1, 1
-        ];
+        return [2 / width, 0, 0, 0, -2 / height, 0, -1, 1, 1];
     },
 
     translate: function (m, tx, ty) {
@@ -168,9 +154,7 @@ function createProgram(gl, vertexShader, fragmentShader) {
     gl.deleteProgram(program);
 }
 
-function initDebugUI(state, onChangeCallback) {
-    const gui = new dat.gui.GUI();
-
+function initDebugUI(gui, state, onChangeCallback) {
     gui.remember(state);
 
     gui.add(state, "angleInDegrees")
@@ -208,7 +192,7 @@ function initDebugUI(state, onChangeCallback) {
         .onChange(() => onChangeCallback());
 }
 
-function main() {
+export function texture2D(gui) {
     /** @type {HTMLCanvasElement} */
     const canvas = document.querySelector("#c");
     const gl = canvas.getContext("webgl");
@@ -227,7 +211,7 @@ function main() {
         scaleY: 1
     };
 
-    initDebugUI(state, drawScene);
+    initDebugUI(gui, state, drawScene);
 
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
     const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
@@ -275,7 +259,7 @@ function main() {
 
     // Asynchronously load an image
     const image = new Image();
-    image.src = "./wooden_shelf.jpg";
+    image.src = woodenShelf;
     image.addEventListener("load", function () {
         // Now that the image has loaded make copy it to the texture.
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -298,6 +282,13 @@ function main() {
 
         // Clear the canvas.
         gl.clear(gl.COLOR_BUFFER_BIT);
+
+        // Disable the depth buffer
+        gl.disable(gl.DEPTH_TEST);
+
+        // Turn off culling. By default backfacing triangles
+        // will be culled.
+        gl.disable(gl.CULL_FACE);
 
         gl.bindTexture(gl.TEXTURE_2D, texture);
 
@@ -333,10 +324,22 @@ function setGeometryAndTexcoords(gl) {
         gl.ARRAY_BUFFER,
         new Float32Array([
             // position   // texcoords
-            10, 20,       0, 1,        // top left
-            310, 20,      1, 1,        // top right
-            10, 320,      0, 0,        // bottom left
-            310, 320,     1, 0         // bottom right
+            10,
+            20,
+            0,
+            1, // top left
+            310,
+            20,
+            1,
+            1, // top right
+            10,
+            320,
+            0,
+            0, // bottom left
+            310,
+            320,
+            1,
+            0 // bottom right
         ]),
         gl.STATIC_DRAW
     );
@@ -347,15 +350,5 @@ function setGeometryAndTexcoords(gl) {
  * @param {WebGLRenderingContext} gl
  */
 function setGeometryIndices(gl) {
-    gl.bufferData(
-        gl.ELEMENT_ARRAY_BUFFER,
-        new Uint16Array([
-            0, 1,
-            2, 1,
-            2, 3
-        ]),
-        gl.STATIC_DRAW
-    );
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([0, 1, 2, 1, 2, 3]), gl.STATIC_DRAW);
 }
-
-main();
