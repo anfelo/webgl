@@ -1,3 +1,6 @@
+import { resizeCanvasToDisplaySize } from "../canvas.js";
+import { createShader, createProgram } from "../webglutils.js";
+
 const vertexShaderSource = `
 attribute vec2 a_position;
 
@@ -13,7 +16,7 @@ void main() {
   // Clipspace goes -1.0 to +1.0
   // Colorspace goes from 0.0 to 1.0
   v_color = gl_Position * 0.5 + 0.5;
-}`
+}`;
 
 const fragmentShaderSource = `
 precision mediump float;
@@ -22,87 +25,44 @@ varying vec4 v_color;
 
 void main() {
   gl_FragColor = v_color;
-}`
-
-/**
- * Resizes the canvas to match the display size
- * @param {HTMLCanvasElement} canvas
- * @param {number} multiplier
- * @returns {boolean}
- */
-function resizeCanvasToDisplaySize(canvas, multiplier) {
-    multiplier = multiplier || 1
-    const width = (canvas.clientWidth * multiplier) | 0
-    const height = (canvas.clientHeight * multiplier) | 0
-    if (canvas.width !== width || canvas.height !== height) {
-        canvas.width = width
-        canvas.height = height
-        return true
-    }
-    return false
-}
-
-/**
- * Creates a shader
- * @param {WebGLRenderingContext} gl
- * @param {number} type
- * @param {string} source
- * @returns {WebGLShader | null}
- */
-function createShader(gl, type, source) {
-    const shader = gl.createShader(type)
-
-    gl.shaderSource(shader, source)
-    gl.compileShader(shader)
-
-    const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS)
-    if (success) {
-        return shader
-    }
-
-    console.log(gl.getShaderInfoLog(shader))
-    gl.deleteShader(shader)
-}
-
-/**
- * Creates a program
- * @param {WebGLRenderingContext} gl
- * @param {WebGLShader} vertexShader
- * @param {WebGLShader} fragmentShader
- * @returns {WebGLProgram | null}
- */
-function createProgram(gl, vertexShader, fragmentShader) {
-    const program = gl.createProgram()
-
-    gl.attachShader(program, vertexShader)
-    gl.attachShader(program, fragmentShader)
-    gl.linkProgram(program)
-
-    const success = gl.getProgramParameter(program, gl.LINK_STATUS)
-    if (success) {
-        return program
-    }
-
-    console.log(gl.getProgramInfoLog(program))
-    gl.deleteProgram(program)
-}
+}`;
 
 function initDebugUI(gui, state, onChangeCallback) {
     gui.remember(state);
 
-    gui.add(state, 'angleInDegrees').min(0).max(360).step(1).onChange(() => {
-        const angleInDegrees = 360 - state.angleInDegrees
-        state.angleInRadians = angleInDegrees * Math.PI / 180
-        onChangeCallback()
-    })
+    gui.add(state, "angleInDegrees")
+        .min(0)
+        .max(360)
+        .step(1)
+        .onChange(() => {
+            const angleInDegrees = 360 - state.angleInDegrees;
+            state.angleInRadians = (angleInDegrees * Math.PI) / 180;
+            onChangeCallback();
+        });
 
-    const f1 = gui.addFolder('Position');
-    f1.add(state, 'posX').min(0).max(state.canvasWidth).step(0.25).onChange(() => onChangeCallback())
-    f1.add(state, 'posY').min(0).max(state.canvasHeight).step(0.25).onChange(() => onChangeCallback())
+    const f1 = gui.addFolder("Position");
+    f1.add(state, "posX")
+        .min(0)
+        .max(state.canvasWidth)
+        .step(0.25)
+        .onChange(() => onChangeCallback());
+    f1.add(state, "posY")
+        .min(0)
+        .max(state.canvasHeight)
+        .step(0.25)
+        .onChange(() => onChangeCallback());
 
-    const f2 = gui.addFolder('Scale');
-    f2.add(state, 'scaleX').min(-5).max(5).step(0.1).onChange(() => onChangeCallback())
-    f2.add(state, 'scaleY').min(-5).max(5).step(0.1).onChange(() => onChangeCallback())
+    const f2 = gui.addFolder("Scale");
+    f2.add(state, "scaleX")
+        .min(-5)
+        .max(5)
+        .step(0.1)
+        .onChange(() => onChangeCallback());
+    f2.add(state, "scaleY")
+        .min(-5)
+        .max(5)
+        .step(0.1)
+        .onChange(() => onChangeCallback());
 }
 
 export function helloColoredTriangle(gui) {
@@ -121,16 +81,16 @@ export function helloColoredTriangle(gui) {
         angleInRadians: 0,
         angleInDegrees: 0,
         scaleX: 1,
-        scaleY: 1,
+        scaleY: 1
     };
 
     initDebugUI(gui, state, drawScene);
 
-    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
-    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource)
+    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
     // setup GLSL program
-    const program = createProgram(gl, vertexShader, fragmentShader)
+    const program = createProgram(gl, vertexShader, fragmentShader);
 
     // look up where the vertex data needs to go.
     const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
@@ -176,13 +136,12 @@ export function helloColoredTriangle(gui) {
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
         // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-        const size = 2;          // 2 components per iteration
-        const type = gl.FLOAT;   // the data is 32bit floats
+        const size = 2; // 2 components per iteration
+        const type = gl.FLOAT; // the data is 32bit floats
         const normalize = false; // don't normalize the data
-        const stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-        let offset = 0;        // start at the beginning of the buffer
-        gl.vertexAttribPointer(
-            positionAttributeLocation, size, type, normalize, stride, offset);
+        const stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
+        let offset = 0; // start at the beginning of the buffer
+        gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
 
         // Compute the matrix
         let matrix = m3.projection(gl.canvas.clientWidth, gl.canvas.clientHeight);
@@ -208,11 +167,5 @@ export function helloColoredTriangle(gui) {
  * @param {WebGLRenderingContext} gl
  */
 function setGeometry(gl) {
-    gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([
-            0, -100,
-            150, 125,
-            -175, 100]),
-        gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, -100, 150, 125, -175, 100]), gl.STATIC_DRAW);
 }
