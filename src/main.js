@@ -95,6 +95,12 @@ const items = [
     }
 ];
 
+window.addEventListener("resize", () => {
+    const temp = currentItem;
+    currentItem = null;
+    selectMenuItem(temp);
+});
+
 document.querySelector("#playground-menu nav").innerHTML = `
     <ul>
         ${items.map(item => `<li><a href="#" class="menu-item" data-slug="${item.slug}">${item.title}</a></li>`).join("")}
