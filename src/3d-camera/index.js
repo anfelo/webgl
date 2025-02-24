@@ -37,67 +37,12 @@ function initDebugUI(gui, state, onChangeCallback) {
             state.fieldOfViewRadians = degToRad(state.fieldOfViewDeg);
             onChangeCallback();
         });
-
-    const f1 = gui.addFolder("Position");
-    f1.add(state, "posX")
-        .min(-200)
-        .max(200)
-        .step(0.25)
-        .onChange(() => onChangeCallback());
-    f1.add(state, "posY")
-        .min(-200)
-        .max(200)
-        .step(0.25)
-        .onChange(() => onChangeCallback());
-    f1.add(state, "posZ")
-        .min(-1000)
-        .max(1)
-        .step(0.25)
-        .onChange(() => onChangeCallback());
-
-    const f2 = gui.addFolder("Scale");
-    f2.add(state, "scaleX")
-        .min(-5)
-        .max(5)
-        .step(0.1)
-        .onChange(() => onChangeCallback());
-    f2.add(state, "scaleY")
-        .min(-5)
-        .max(5)
-        .step(0.1)
-        .onChange(() => onChangeCallback());
-    f2.add(state, "scaleZ")
-        .min(-5)
-        .max(5)
-        .step(0.1)
-        .onChange(() => onChangeCallback());
-
-    const f3 = gui.addFolder("Rotation");
-    f3.add(state, "rotDegX")
+    f0.add(state, "cameraAngleDeg")
         .min(0)
         .max(360)
         .step(1)
         .onChange(() => {
-            const angleInDegrees = 360 - state.rotDegX;
-            state.rotRadX = degToRad(angleInDegrees);
-            onChangeCallback();
-        });
-    f3.add(state, "rotDegY")
-        .min(0)
-        .max(360)
-        .step(1)
-        .onChange(() => {
-            const angleInDegrees = 360 - state.rotDegY;
-            state.rotRadY = degToRad(angleInDegrees);
-            onChangeCallback();
-        });
-    f3.add(state, "rotDegZ")
-        .min(0)
-        .max(360)
-        .step(1)
-        .onChange(() => {
-            const angleInDegrees = 360 - state.rotDegZ;
-            state.rotRadZ = degToRad(angleInDegrees);
+            state.cameraAngleRadians = degToRad(state.cameraAngleDeg);
             onChangeCallback();
         });
 }
@@ -119,22 +64,12 @@ export function camera3D(gui) {
     }
 
     const state = {
+        cameraAngleRadians: degToRad(0),
+        cameraAngleDeg: 0,
         fieldOfViewRadians: degToRad(60),
         fieldOfViewDeg: 60,
         canvasWidth: canvas.clientWidth,
-        canvasHeight: canvas.clientHeight,
-        posX: -150,
-        posY: 0,
-        posZ: -360,
-        rotDegX: 190,
-        rotDegY: 40,
-        rotDegZ: 320,
-        rotRadX: degToRad(190),
-        rotRadY: degToRad(40),
-        rotRadZ: degToRad(320),
-        scaleX: 1,
-        scaleY: 1,
-        scaleZ: 1
+        canvasHeight: canvas.clientHeight
     };
 
     initDebugUI(gui, state, drawScene);
@@ -192,24 +127,58 @@ export function camera3D(gui) {
         gl.enableVertexAttribArray(positionAttributeLocation);
         gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
 
-        // let matrix = m4.orthographic(0, state.canvasWidth, state.canvasHeight, 0, 400, -400);
-        // Compute the matrix
+        const numFs = 5;
+        const radius = 200;
+
         const aspect = state.canvasWidth / state.canvasHeight;
         const zNear = 1;
         const zFar = 2000;
-        let matrix = m4.perspective(state.fieldOfViewRadians, aspect, zNear, zFar);
+        let projectionMatrix = m4.perspective(state.fieldOfViewRadians, aspect, zNear, zFar);
 
-        matrix = m4.translate(matrix, state.posX, state.posY, state.posZ);
-        matrix = m4.xRotate(matrix, state.rotRadX);
-        matrix = m4.yRotate(matrix, state.rotRadY);
-        matrix = m4.zRotate(matrix, state.rotRadZ);
-        matrix = m4.scale(matrix, state.scaleX, state.scaleY, state.scaleZ);
+        // Compute the position of the first F
+        const fPosition = [radius, 0, 0];
 
-        // Set the matrix.
-        gl.uniformMatrix4fv(matrixLocation, false, matrix);
+        // Use matrix math to compute a position on a circle where
+        // the camera is
+        let cameraMatrix = m4.yRotation(state.cameraAngleRadians);
+        cameraMatrix = m4.translate(cameraMatrix, 0, 0, radius * 2);
 
-        // draw elements
-        gl.drawArrays(gl.TRIANGLES, 0, 16 * 6);
+        // Get the camera's position from the matrix we computed
+        const cameraPosition = [
+            cameraMatrix[12],
+            cameraMatrix[13],
+            cameraMatrix[14],
+        ];
+
+        const up = [0, 1, 0];
+
+        // Compute the camera's matrix using look at.
+        cameraMatrix = m4.lookAt(cameraPosition, fPosition, up);
+
+        // Make a view matrix from the camera matrix
+        const viewMatrix = m4.inverse(cameraMatrix);
+
+        // Compute a view projection matrix
+        const viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+
+        for (let i = 0; i < numFs; ++i) {
+            const angle = (i * Math.PI * 2) / numFs;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+
+            // starting with the view projection matrix
+            // compute a matrix for the F
+            let matrix = m4.translate(viewProjectionMatrix, x, 0, y);
+
+            // Set the matrix.
+            gl.uniformMatrix4fv(matrixLocation, false, matrix);
+
+            // Draw the geometry.
+            const primitiveType = gl.TRIANGLES;
+            const offset = 0;
+            const count = 16 * 6;
+            gl.drawArrays(primitiveType, offset, count);
+        }
     }
 }
 
@@ -220,59 +189,74 @@ export function camera3D(gui) {
  * @param {WebGLRenderingContext} gl
  */
 function setGeometry(gl) {
-    gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([
-            // left column front
-            0, 0, 0, 0, 150, 0, 30, 0, 0, 0, 150, 0, 30, 150, 0, 30, 0, 0,
+    const positions = new Float32Array([
+        // left column front
+        0, 0, 0, 0, 150, 0, 30, 0, 0, 0, 150, 0, 30, 150, 0, 30, 0, 0,
 
-            // top rung front
-            30, 0, 0, 30, 30, 0, 100, 0, 0, 30, 30, 0, 100, 30, 0, 100, 0, 0,
+        // top rung front
+        30, 0, 0, 30, 30, 0, 100, 0, 0, 30, 30, 0, 100, 30, 0, 100, 0, 0,
 
-            // middle rung front
-            30, 60, 0, 30, 90, 0, 67, 60, 0, 30, 90, 0, 67, 90, 0, 67, 60, 0,
+        // middle rung front
+        30, 60, 0, 30, 90, 0, 67, 60, 0, 30, 90, 0, 67, 90, 0, 67, 60, 0,
 
-            // left column back
-            0, 0, 30, 30, 0, 30, 0, 150, 30, 0, 150, 30, 30, 0, 30, 30, 150, 30,
+        // left column back
+        0, 0, 30, 30, 0, 30, 0, 150, 30, 0, 150, 30, 30, 0, 30, 30, 150, 30,
 
-            // top rung back
-            30, 0, 30, 100, 0, 30, 30, 30, 30, 30, 30, 30, 100, 0, 30, 100, 30, 30,
+        // top rung back
+        30, 0, 30, 100, 0, 30, 30, 30, 30, 30, 30, 30, 100, 0, 30, 100, 30, 30,
 
-            // middle rung back
-            30, 60, 30, 67, 60, 30, 30, 90, 30, 30, 90, 30, 67, 60, 30, 67, 90, 30,
+        // middle rung back
+        30, 60, 30, 67, 60, 30, 30, 90, 30, 30, 90, 30, 67, 60, 30, 67, 90, 30,
 
-            // top
-            0, 0, 0, 100, 0, 0, 100, 0, 30, 0, 0, 0, 100, 0, 30, 0, 0, 30,
+        // top
+        0, 0, 0, 100, 0, 0, 100, 0, 30, 0, 0, 0, 100, 0, 30, 0, 0, 30,
 
-            // top rung right
-            100, 0, 0, 100, 30, 0, 100, 30, 30, 100, 0, 0, 100, 30, 30, 100, 0, 30,
+        // top rung right
+        100, 0, 0, 100, 30, 0, 100, 30, 30, 100, 0, 0, 100, 30, 30, 100, 0, 30,
 
-            // under top rung
-            30, 30, 0, 30, 30, 30, 100, 30, 30, 30, 30, 0, 100, 30, 30, 100, 30, 0,
+        // under top rung
+        30, 30, 0, 30, 30, 30, 100, 30, 30, 30, 30, 0, 100, 30, 30, 100, 30, 0,
 
-            // between top rung and middle
-            30, 30, 0, 30, 60, 30, 30, 30, 30, 30, 30, 0, 30, 60, 0, 30, 60, 30,
+        // between top rung and middle
+        30, 30, 0, 30, 60, 30, 30, 30, 30, 30, 30, 0, 30, 60, 0, 30, 60, 30,
 
-            // top of middle rung
-            30, 60, 0, 67, 60, 30, 30, 60, 30, 30, 60, 0, 67, 60, 0, 67, 60, 30,
+        // top of middle rung
+        30, 60, 0, 67, 60, 30, 30, 60, 30, 30, 60, 0, 67, 60, 0, 67, 60, 30,
 
-            // right of middle rung
-            67, 60, 0, 67, 90, 30, 67, 60, 30, 67, 60, 0, 67, 90, 0, 67, 90, 30,
+        // right of middle rung
+        67, 60, 0, 67, 90, 30, 67, 60, 30, 67, 60, 0, 67, 90, 0, 67, 90, 30,
 
-            // bottom of middle rung.
-            30, 90, 0, 30, 90, 30, 67, 90, 30, 30, 90, 0, 67, 90, 30, 67, 90, 0,
+        // bottom of middle rung.
+        30, 90, 0, 30, 90, 30, 67, 90, 30, 30, 90, 0, 67, 90, 30, 67, 90, 0,
 
-            // right of bottom
-            30, 90, 0, 30, 150, 30, 30, 90, 30, 30, 90, 0, 30, 150, 0, 30, 150, 30,
+        // right of bottom
+        30, 90, 0, 30, 150, 30, 30, 90, 30, 30, 90, 0, 30, 150, 0, 30, 150, 30,
 
-            // bottom
-            0, 150, 0, 0, 150, 30, 30, 150, 30, 0, 150, 0, 30, 150, 30, 30, 150, 0,
+        // bottom
+        0, 150, 0, 0, 150, 30, 30, 150, 30, 0, 150, 0, 30, 150, 30, 30, 150, 0,
 
-            // left side
-            0, 0, 0, 0, 0, 30, 0, 150, 30, 0, 0, 0, 0, 150, 30, 0, 150, 0
-        ]),
-        gl.STATIC_DRAW
-    );
+        // left side
+        0, 0, 0, 0, 0, 30, 0, 150, 30, 0, 0, 0, 0, 150, 30, 0, 150, 0
+    ]);
+
+    // Center the F around the origin and Flip it around. We do this because
+    // we're in 3D now with and +Y is up where as before when we started with 2D
+    // we had +Y as down.
+
+    // We could do by changing all the values above but I'm lazy.
+    // We could also do it with a matrix at draw time but you should
+    // never do stuff at draw time if you can do it at init time.
+    let matrix = m4.xRotation(Math.PI);
+    matrix = m4.translate(matrix, -50, -75, -15);
+
+    for (let ii = 0; ii < positions.length; ii += 3) {
+        const vector = m4.vectorMultiply([positions[ii + 0], positions[ii + 1], positions[ii + 2], 1], matrix);
+        positions[ii + 0] = vector[0];
+        positions[ii + 1] = vector[1];
+        positions[ii + 2] = vector[2];
+    }
+
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 }
 
 // Fill the buffer with colors for the 'F'.
