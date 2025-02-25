@@ -198,22 +198,10 @@ function setGeometryAndTexcoords(gl) {
         gl.ARRAY_BUFFER,
         new Float32Array([
             // position   // texcoords
-            10,
-            20,
-            0,
-            1, // top left
-            310,
-            20,
-            1,
-            1, // top right
-            10,
-            320,
-            0,
-            0, // bottom left
-            310,
-            320,
-            1,
-            0 // bottom right
+            10, 20, 0, 1, // top left
+            310, 20, 1, 1, // top right
+            10, 320, 0, 0, // bottom left
+            310, 320, 1, 0 // bottom right
         ]),
         gl.STATIC_DRAW
     );

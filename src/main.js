@@ -7,6 +7,7 @@ import { texture2D } from "./2d-textures";
 import { transformMatrix2D } from "./2d-transform-matrix";
 import { going3D } from "./going-3d";
 import { camera3D } from "./3d-camera";
+import { texture3D } from "./3d-texture";
 
 import "./style.css";
 
@@ -82,6 +83,15 @@ const items = [
             gui.destroy();
             gui = new dat.gui.GUI();
             going3D(gui);
+        }
+    },
+    {
+        title: "Texture 3d",
+        slug: "texture-3d",
+        onClick: () => {
+            gui.destroy();
+            gui = new dat.gui.GUI();
+            texture3D(gui);
         }
     },
     {
