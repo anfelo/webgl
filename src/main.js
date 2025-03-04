@@ -8,6 +8,7 @@ import { transformMatrix2D } from "./2d-transform-matrix";
 import { going3D } from "./going-3d";
 import { camera3D } from "./3d-camera";
 import { texture3D } from "./3d-texture";
+import { directionalLight } from "./directional-light";
 
 import "./style.css";
 
@@ -101,6 +102,15 @@ const items = [
             gui.destroy();
             gui = new dat.gui.GUI();
             camera3D(gui);
+        }
+    },
+    {
+        title: "Directional Light",
+        slug: "directional-light",
+        onClick: () => {
+            gui.destroy();
+            gui = new dat.gui.GUI();
+            directionalLight(gui);
         }
     }
 ];
