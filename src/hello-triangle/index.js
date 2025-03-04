@@ -26,9 +26,11 @@ const fragmentShaderSource = `
   }
 `;
 
-export function helloTriangle() {
-    const canvas = document.querySelector("#c");
-
+/**
+ * Paints a simple triangle into the canvas
+ * @param {HTMLCanvasElement} canvas
+ */
+export function helloTriangle(canvas) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;

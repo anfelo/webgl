@@ -61,9 +61,11 @@ function initDebugUI(gui, state, onChangeCallback) {
         .onChange(() => onChangeCallback());
 }
 
-export function transformMatrix2D(gui) {
-    /** @type {HTMLCanvasElement} */
-    const canvas = document.querySelector("#c");
+/**
+ * Paints a letter F and allows to modify its transform with a matrix
+ * @param {HTMLCanvasElement} canvas
+ */
+export function transformMatrix2D(canvas, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;

@@ -65,9 +65,11 @@ function initDebugUI(gui, state, onChangeCallback) {
         .onChange(() => onChangeCallback());
 }
 
-export function helloColoredTriangle(gui) {
-    /** @type {HTMLCanvasElement} */
-    const canvas = document.querySelector("#c");
+/**
+ * Paints a colored triangle into the canvas
+ * @param {HTMLCanvasElement} canvas
+ */
+export function helloColoredTriangle(canvas, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;

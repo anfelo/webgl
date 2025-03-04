@@ -38,9 +38,11 @@ const fragmentShaderSource = `
   }
 `;
 
-export function helloRectangle() {
-    const canvas = document.querySelector("#c");
-
+/**
+ * Paints a simple rectangle into the canvas
+ * @param {HTMLCanvasElement} canvas
+ */
+export function helloRectangle(canvas) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;

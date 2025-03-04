@@ -55,9 +55,11 @@ function degToRad(d) {
     return (d * Math.PI) / 180;
 }
 
-export function camera3D(gui) {
-    /** @type {HTMLCanvasElement} */
-    const canvas = document.querySelector("#c");
+/**
+ * Paints many Fs and adds a camera to the scene
+ * @param {HTMLCanvasElement} canvas
+ */
+export function camera3D(canvas, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;

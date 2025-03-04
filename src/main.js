@@ -11,10 +11,21 @@ import { texture3D } from "./3d-texture";
 import { directionalLight } from "./directional-light";
 
 import "./style.css";
+import { pointLight } from "./point-light";
 
 let gui = new dat.gui.GUI();
 let currentItem = "";
 const initialItem = "hello-triangle";
+
+const canvas2D = document.getElementById("canvas-2d");
+const canvas3D = document.getElementById("canvas-3d");
+
+const useCanvas = canvas => {
+    canvas2D.style.display = "none";
+    canvas3D.style.display = "none";
+
+    canvas.style.display = "block";
+};
 
 const items = [
     {
@@ -22,7 +33,8 @@ const items = [
         slug: "hello-triangle",
         onClick: () => {
             gui.hide();
-            helloTriangle();
+            useCanvas(canvas2D);
+            helloTriangle(canvas2D);
         }
     },
     {
@@ -30,7 +42,8 @@ const items = [
         slug: "hello-rectangle",
         onClick: () => {
             gui.hide();
-            helloRectangle();
+            useCanvas(canvas2D);
+            helloRectangle(canvas2D);
         }
     },
     {
@@ -39,7 +52,8 @@ const items = [
         onClick: () => {
             gui.destroy();
             gui = new dat.gui.GUI();
-            return helloColoredTriangle(gui);
+            useCanvas(canvas2D);
+            helloColoredTriangle(canvas2D, gui);
         }
     },
     {
@@ -47,7 +61,8 @@ const items = [
         slug: "hello-multiple-rectangles",
         onClick: () => {
             gui.hide();
-            helloMultipleRectangles();
+            useCanvas(canvas2D);
+            helloMultipleRectangles(canvas2D);
         }
     },
     {
@@ -56,7 +71,8 @@ const items = [
         onClick: () => {
             gui.destroy();
             gui = new dat.gui.GUI();
-            transform2D(gui);
+            useCanvas(canvas2D);
+            transform2D(canvas2D, gui);
         }
     },
     {
@@ -65,7 +81,8 @@ const items = [
         onClick: () => {
             gui.destroy();
             gui = new dat.gui.GUI();
-            transformMatrix2D(gui);
+            useCanvas(canvas2D);
+            transformMatrix2D(canvas2D, gui);
         }
     },
     {
@@ -74,7 +91,8 @@ const items = [
         onClick: () => {
             gui.destroy();
             gui = new dat.gui.GUI();
-            texture2D(gui);
+            useCanvas(canvas2D);
+            texture2D(canvas2D, gui);
         }
     },
     {
@@ -83,7 +101,8 @@ const items = [
         onClick: () => {
             gui.destroy();
             gui = new dat.gui.GUI();
-            going3D(gui);
+            useCanvas(canvas3D);
+            going3D(canvas3D, gui);
         }
     },
     {
@@ -92,7 +111,8 @@ const items = [
         onClick: () => {
             gui.destroy();
             gui = new dat.gui.GUI();
-            texture3D(gui);
+            useCanvas(canvas3D);
+            texture3D(canvas3D, gui);
         }
     },
     {
@@ -101,7 +121,8 @@ const items = [
         onClick: () => {
             gui.destroy();
             gui = new dat.gui.GUI();
-            camera3D(gui);
+            useCanvas(canvas3D);
+            camera3D(canvas3D, gui);
         }
     },
     {
@@ -110,7 +131,18 @@ const items = [
         onClick: () => {
             gui.destroy();
             gui = new dat.gui.GUI();
-            directionalLight(gui);
+            useCanvas(canvas3D);
+            directionalLight(canvas3D, gui);
+        }
+    },
+    {
+        title: "Point Light",
+        slug: "point-light",
+        onClick: () => {
+            gui.destroy();
+            gui = new dat.gui.GUI();
+            useCanvas(canvas3D);
+            pointLight(canvas3D, gui);
         }
     }
 ];

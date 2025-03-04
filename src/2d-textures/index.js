@@ -66,9 +66,11 @@ function initDebugUI(gui, state, onChangeCallback) {
         .onChange(() => onChangeCallback());
 }
 
-export function texture2D(gui) {
-    /** @type {HTMLCanvasElement} */
-    const canvas = document.querySelector("#c");
+/**
+ * Paints a rectangle with a texture
+ * @param {HTMLCanvasElement} canvas
+ */
+export function texture2D(canvas, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;

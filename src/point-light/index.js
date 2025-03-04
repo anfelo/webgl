@@ -121,9 +121,11 @@ function degToRad(d) {
     return (d * Math.PI) / 180;
 }
 
-export function pointLight(gui) {
-    /** @type {HTMLCanvasElement} */
-    const canvas = document.querySelector("#c");
+/**
+ * Paints a letter F and adds a point light to the scene
+ * @param {HTMLCanvasElement} canvas
+ */
+export function pointLight(canvas, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;

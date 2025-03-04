@@ -77,9 +77,11 @@ function initDebugUI(gui, state, onChangeCallback) {
         .onChange(() => onChangeCallback());
 }
 
-export function transform2D(gui) {
-    /** @type {HTMLCanvasElement} */
-    const canvas = document.querySelector("#c");
+/**
+ * Paints a letter F and allows to modify its transform
+ * @param {HTMLCanvasElement} canvas
+ */
+export function transform2D(canvas, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;

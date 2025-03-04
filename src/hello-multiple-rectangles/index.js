@@ -38,9 +38,11 @@ const fragmentShaderSource = `
   }
 `;
 
-export function helloMultipleRectangles() {
-    const canvas = document.querySelector("#c");
-
+/**
+ * Paints multiple colored rectangles into the canvas
+ * @param {HTMLCanvasElement} canvas
+ */
+export function helloMultipleRectangles(canvas) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;

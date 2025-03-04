@@ -113,10 +113,11 @@ function degToRad(d) {
     return (d * Math.PI) / 180;
 }
 
-export function texture3D(gui) {
-    /** @type {HTMLCanvasElement} */
-    const canvas = document.querySelector("#c");
-
+/**
+ * Paints a cube with texture in all its faces
+ * @param {HTMLCanvasElement} canvas
+ */
+export function texture3D(canvas, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
