@@ -12,6 +12,7 @@ import { directionalLight } from "./directional-light";
 
 import "./style.css";
 import { pointLight } from "./point-light";
+import { spotLight } from "./spot-light";
 
 let gui = new dat.gui.GUI();
 let currentItem = "";
@@ -144,7 +145,18 @@ const items = [
             useCanvas(canvas3D);
             pointLight(canvas3D, gui);
         }
+    },
+    {
+        title: "Spot Light",
+        slug: "spot-light",
+        onClick: () => {
+            gui.destroy();
+            gui = new dat.gui.GUI();
+            useCanvas(canvas3D);
+            spotLight(canvas3D, gui);
+        }
     }
+
 ];
 
 window.addEventListener("resize", () => {
