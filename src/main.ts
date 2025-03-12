@@ -179,7 +179,7 @@ document.querySelector("#playground-menu nav")!.innerHTML = `
     </ul>
 `;
 
-document.querySelectorAll(".menu-item").forEach((menuItem) => {
+document.querySelectorAll(".menu-item").forEach(menuItem => {
     menuItem.addEventListener("click", () => {
         const slug = (menuItem as HTMLElement).dataset.slug;
         selectMenuItem(slug || null);
