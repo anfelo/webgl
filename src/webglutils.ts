@@ -1,21 +1,37 @@
 /**
- * Creates a shader
- * @param {WebGLRenderingContext} gl
- * @param {string[]} shaderSources
- * @param {string[]} attributes
- * @param {string[]} uniforms
- * @returns {{ program: WebGLProgram }}
+ * Creates the program, the shaders and the attribute and uniform setters
+ * @param {ProgramInfoArgs} programInfoArgs
+ * @param {WebGLRenderingContext} programInfoArgs.gl
+ * @param {string[]} programInfoArgs.shaderSources
+ * @param {string[]} programInfoArgs.attributes
+ * @param {string[]} programInfoArgs.uniforms
+ * @returns {{ program: WebGLProgram, uniformSetters: , attribSetters } | null}
  */
 export function createProgramInfo({
-    context: gl,
-    sources: [vertexShaderSource, fragmentShaderSource],
-    attributes: attributes,
-    uniforms: uniforms
-}) {
+    gl,
+    sources,
+    attributes,
+    uniforms
+}: {
+    gl: WebGLRenderingContext;
+    sources: string[];
+    attributes: string[];
+    uniforms: string[];
+}): { program: WebGLProgram; uniformSetters: Object; attribSetters: Object } | null {
+    const [vertexShaderSource, fragmentShaderSource] = sources;
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
     const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
+    if (!vertexShader || !fragmentShader) {
+        return null;
+    }
+
     const program = createProgram(gl, vertexShader, fragmentShader);
+
+    if (!program) {
+        return null;
+    }
+
     const uniformSetters = createUniformSetters(gl, program, uniforms);
     const attribSetters = createAttributeSetters(gl, program, attributes);
 
@@ -29,12 +45,16 @@ export function createProgramInfo({
 /**
  * Creates a shader
  * @param {WebGLRenderingContext} gl
- * @param {number} type
+ * @param {GLenum} type
  * @param {string} source
  * @returns {WebGLShader | null}
  */
-export function createShader(gl, type, source) {
+export function createShader(gl: WebGLRenderingContext, type: GLenum, source: string): WebGLShader | null {
     const shader = gl.createShader(type);
+
+    if (!shader) {
+        return null;
+    }
 
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
@@ -46,6 +66,7 @@ export function createShader(gl, type, source) {
 
     console.log(gl.getShaderInfoLog(shader));
     gl.deleteShader(shader);
+    return null;
 }
 
 /**
@@ -55,7 +76,11 @@ export function createShader(gl, type, source) {
  * @param {WebGLShader} fragmentShader
  * @returns {WebGLProgram | null}
  */
-export function createProgram(gl, vertexShader, fragmentShader) {
+export function createProgram(
+    gl: WebGLRenderingContext,
+    vertexShader: WebGLShader,
+    fragmentShader: WebGLShader
+): WebGLProgram | null {
     const program = gl.createProgram();
 
     gl.attachShader(program, vertexShader);
@@ -69,6 +94,8 @@ export function createProgram(gl, vertexShader, fragmentShader) {
 
     console.log(gl.getProgramInfoLog(program));
     gl.deleteProgram(program);
+
+    return null;
 }
 
 /**
@@ -76,15 +103,20 @@ export function createProgram(gl, vertexShader, fragmentShader) {
  * @param {WebGLRenderingContext} gl
  * @param {WebGLProgram} program
  * @param {string[]} uniforms
+ * @returns {{[key: string]: WebGLUniformLocation | null}}
  */
-export function createUniformSetters(gl, program, uniforms) {
-    const unis = {};
+export function createUniformSetters(
+    gl: WebGLRenderingContext,
+    program: WebGLProgram,
+    uniforms: string[]
+): { [key: string]: WebGLUniformLocation | null } {
+    const uniformSetters: { [key: string]: WebGLUniformLocation | null } = {};
 
     uniforms.forEach(u => {
-        unis[u] = gl.getUniformLocation(program, u);
+        uniformSetters[u] = gl.getUniformLocation(program, u);
     });
 
-    return unis;
+    return uniformSetters;
 }
 
 /**
@@ -92,13 +124,18 @@ export function createUniformSetters(gl, program, uniforms) {
  * @param {WebGLRenderingContext} gl
  * @param {WebGLProgram} program
  * @param {string[]} attributes
+ * @returns {{[key: string]: GLint}}
  */
-export function createAttributeSetters(gl, program, attributes) {
-    const locs = {};
+export function createAttributeSetters(
+    gl: WebGLRenderingContext,
+    program: WebGLProgram,
+    attributes: string[]
+): { [key: string]: GLint } {
+    const attribSetters: { [key: string]: GLint } = {};
 
     attributes.forEach(attr => {
-        locs[attr] = gl.getAttribLocation(program, attr);
+        attribSetters[attr] = gl.getAttribLocation(program, attr);
     });
 
-    return locs;
+    return attribSetters;
 }

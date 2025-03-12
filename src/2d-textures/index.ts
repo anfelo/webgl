@@ -70,7 +70,7 @@ function initDebugUI(gui, state, onChangeCallback) {
  * Paints a rectangle with a texture
  * @param {HTMLCanvasElement} canvas
  */
-export function texture2D(canvas, gui) {
+export function texture2D(canvas: HTMLCanvasElement, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -151,7 +151,7 @@ export function texture2D(canvas, gui) {
      * Draws the scene.
      */
     function drawScene() {
-        resizeCanvasToDisplaySize(gl.canvas);
+        resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
 
         // Tell WebGL how to convert from clip space to pixels
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -195,7 +195,7 @@ export function texture2D(canvas, gui) {
  * bound to the ARRAY_BUFFER bind point
  * @param {WebGLRenderingContext} gl
  */
-function setGeometryAndTexcoords(gl) {
+function setGeometryAndTexcoords(gl: WebGLRenderingContext) {
     gl.bufferData(
         gl.ARRAY_BUFFER,
         new Float32Array([
@@ -213,6 +213,6 @@ function setGeometryAndTexcoords(gl) {
  * Fills the indices buffer to tell WebGL how to draw the geometry
  * @param {WebGLRenderingContext} gl
  */
-function setGeometryIndices(gl) {
+function setGeometryIndices(gl: WebGLRenderingContext) {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([0, 1, 2, 1, 2, 3]), gl.STATIC_DRAW);
 }

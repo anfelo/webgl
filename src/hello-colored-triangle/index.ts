@@ -70,7 +70,7 @@ function initDebugUI(gui, state, onChangeCallback) {
  * Paints a colored triangle into the canvas
  * @param {HTMLCanvasElement} canvas
  */
-export function helloColoredTriangle(canvas, gui) {
+export function helloColoredTriangle(canvas: HTMLCanvasElement, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -114,7 +114,8 @@ export function helloColoredTriangle(canvas, gui) {
      * Draws the scene.
      */
     function drawScene() {
-        resizeCanvasToDisplaySize(gl.canvas);
+        const glCanvas = gl.canvas as HTMLCanvasElement
+        resizeCanvasToDisplaySize(glCanvas);
 
         // Tell WebGL how to convert from clip space to pixels
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -147,7 +148,7 @@ export function helloColoredTriangle(canvas, gui) {
         gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
 
         // Compute the matrix
-        let matrix = m3.projection(gl.canvas.clientWidth, gl.canvas.clientHeight);
+        let matrix = m3.projection(glCanvas.clientWidth, glCanvas.clientHeight);
         matrix = m3.translate(matrix, state.posX, state.posY);
         matrix = m3.rotate(matrix, state.angleInRadians);
         matrix = m3.scale(matrix, state.scaleX, state.scaleY);
@@ -169,6 +170,6 @@ export function helloColoredTriangle(canvas, gui) {
  * bound to the ARRAY_BUFFER bind point
  * @param {WebGLRenderingContext} gl
  */
-function setGeometry(gl) {
+function setGeometry(gl: WebGLRenderingContext) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, -100, 150, 125, -175, 100]), gl.STATIC_DRAW);
 }

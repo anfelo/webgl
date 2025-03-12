@@ -42,7 +42,7 @@ const fragmentShaderSource = `
  * Paints a simple rectangle into the canvas
  * @param {HTMLCanvasElement} canvas
  */
-export function helloRectangle(canvas) {
+export function helloRectangle(canvas: HTMLCanvasElement) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -81,7 +81,7 @@ export function helloRectangle(canvas) {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
-    resizeCanvasToDisplaySize(gl.canvas);
+    resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
 
     // Tell WebGL how to convert from clip space to pixels
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);

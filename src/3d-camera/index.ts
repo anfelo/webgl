@@ -1,4 +1,4 @@
-import { m4 } from "../matrix.js";
+import { m4, Vector3 } from "../matrix.js";
 import { resizeCanvasToDisplaySize } from "../canvas.js";
 import { createShader, createProgram } from "../webglutils.js";
 
@@ -47,10 +47,6 @@ function initDebugUI(gui, state, onChangeCallback) {
         });
 }
 
-function radToDeg(r) {
-    return (r * 180) / Math.PI;
-}
-
 function degToRad(d) {
     return (d * Math.PI) / 180;
 }
@@ -59,7 +55,7 @@ function degToRad(d) {
  * Paints many Fs and adds a camera to the scene
  * @param {HTMLCanvasElement} canvas
  */
-export function camera3D(canvas, gui) {
+export function camera3D(canvas: HTMLCanvasElement, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -103,7 +99,7 @@ export function camera3D(canvas, gui) {
      * Draws the scene.
      */
     function drawScene() {
-        resizeCanvasToDisplaySize(gl.canvas);
+        resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
 
         // Tell WebGL how to convert from clip space to pixels
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -138,7 +134,7 @@ export function camera3D(canvas, gui) {
         let projectionMatrix = m4.perspective(state.fieldOfViewRadians, aspect, zNear, zFar);
 
         // Compute the position of the first F
-        const fPosition = [radius, 0, 0];
+        const fPosition: Vector3 = [radius, 0, 0];
 
         // Use matrix math to compute a position on a circle where
         // the camera is
@@ -146,13 +142,13 @@ export function camera3D(canvas, gui) {
         cameraMatrix = m4.translate(cameraMatrix, 0, 0, radius * 2);
 
         // Get the camera's position from the matrix we computed
-        const cameraPosition = [
+        const cameraPosition: Vector3 = [
             cameraMatrix[12],
             cameraMatrix[13],
             cameraMatrix[14],
         ];
 
-        const up = [0, 1, 0];
+        const up: Vector3 = [0, 1, 0];
 
         // Compute the camera's matrix using look at.
         cameraMatrix = m4.lookAt(cameraPosition, fPosition, up);
@@ -190,7 +186,7 @@ export function camera3D(canvas, gui) {
  * bound to the ARRAY_BUFFER bind point
  * @param {WebGLRenderingContext} gl
  */
-function setGeometry(gl) {
+function setGeometry(gl: WebGLRenderingContext) {
     const positions = new Float32Array([
         // left column front
         0, 0, 0, 0, 150, 0, 30, 0, 0, 0, 150, 0, 30, 150, 0, 30, 0, 0,
@@ -262,7 +258,7 @@ function setGeometry(gl) {
 }
 
 // Fill the buffer with colors for the 'F'.
-function setColors(gl) {
+function setColors(gl: WebGLRenderingContext) {
     gl.bufferData(
         gl.ARRAY_BUFFER,
         new Uint8Array([

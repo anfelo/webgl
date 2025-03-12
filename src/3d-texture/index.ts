@@ -105,10 +105,6 @@ function initDebugUI(gui, state, onChangeCallback) {
         });
 }
 
-function radToDeg(r) {
-    return (r * 180) / Math.PI;
-}
-
 function degToRad(d) {
     return (d * Math.PI) / 180;
 }
@@ -117,7 +113,7 @@ function degToRad(d) {
  * Paints a cube with texture in all its faces
  * @param {HTMLCanvasElement} canvas
  */
-export function texture3D(canvas, gui) {
+export function texture3D(canvas: HTMLCanvasElement, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -171,7 +167,7 @@ export function texture3D(canvas, gui) {
      * Draws the scene.
      */
     function drawScene() {
-        resizeCanvasToDisplaySize(gl.canvas);
+        resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
 
         // Tell WebGL how to convert from clip space to pixels
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -232,7 +228,6 @@ export function texture3D(canvas, gui) {
     }
 }
 
-
 /**
  * Loads the texture
  * @param {WebGLRenderingContext} gl
@@ -240,7 +235,11 @@ export function texture3D(canvas, gui) {
  * @param {CallableFunction} onLoadCallback
  * @returns {WebGLTexture | null}
  */
-function loadTexture(gl, textureSrc, onLoadCallback) {
+function loadTexture(
+    gl: WebGLRenderingContext,
+    textureSrc: string,
+    onLoadCallback: CallableFunction
+): WebGLTexture | null {
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
     // Fill the texture with a 1x1 blue pixel.

@@ -81,7 +81,7 @@ function initDebugUI(gui, state, onChangeCallback) {
  * Paints a letter F and allows to modify its transform
  * @param {HTMLCanvasElement} canvas
  */
-export function transform2D(canvas, gui) {
+export function transform2D(canvas: HTMLCanvasElement, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -131,7 +131,9 @@ export function transform2D(canvas, gui) {
      * Draws the scene.
      */
     function drawScene() {
-        resizeCanvasToDisplaySize(gl.canvas);
+        const glCanvas = gl.canvas as HTMLCanvasElement;
+
+        resizeCanvasToDisplaySize(glCanvas);
 
         // Tell WebGL how to convert from clip space to pixels
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -170,7 +172,7 @@ export function transform2D(canvas, gui) {
         // matrix = m3.scale(matrix, state.scaleX, state.scaleY);
 
         // set the resolution
-        gl.uniform2f(resolutionLocation, gl.canvas.clientWidth, gl.canvas.clientHeight);
+        gl.uniform2f(resolutionLocation, glCanvas.clientWidth, glCanvas.clientHeight);
 
         // set the translation
         gl.uniform2fv(translationLocation, [state.posX, state.posY]);
@@ -193,7 +195,7 @@ export function transform2D(canvas, gui) {
  * bound to the ARRAY_BUFFER bind point
  * @param {WebGLRenderingContext} gl
  */
-function setGeometry(gl) {
+function setGeometry(gl: WebGLRenderingContext) {
     gl.bufferData(
         gl.ARRAY_BUFFER,
         new Float32Array([

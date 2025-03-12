@@ -22,7 +22,7 @@ export type Matrix4 = [
 ];
 
 export const m4 = {
-    lookAt: function (cameraPosition: Vector3, target: Vector3, up: Vector3) {
+    lookAt: function (cameraPosition: Vector3, target: Vector3, up: Vector3): Matrix4 {
         const zAxis = normalize(subtractVectors(cameraPosition, target));
         const xAxis = normalize(cross(up, zAxis));
         const yAxis = normalize(cross(zAxis, xAxis));
@@ -389,7 +389,7 @@ function cross(a: Vector3 | Float32Array, b: Vector3 | Float32Array): Vector3 | 
  * @param {Vector3 | Float32Array} dst optional vector4 to store result
  * @return {Vector3 | Float32Array}
  */
-export function transformPoint(m: Matrix4, v: Vector3, dst: Vector3 | Float32Array): Vector3 | Float32Array {
+export function transformPoint(m: Matrix4, v: Vector3, dst?: Vector3 | Float32Array): Vector3 | Float32Array {
     dst = dst || new Float32Array(3);
     var v0 = v[0];
     var v1 = v[1];

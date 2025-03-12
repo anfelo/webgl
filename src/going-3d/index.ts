@@ -102,10 +102,6 @@ function initDebugUI(gui, state, onChangeCallback) {
         });
 }
 
-function radToDeg(r) {
-    return (r * 180) / Math.PI;
-}
-
 function degToRad(d) {
     return (d * Math.PI) / 180;
 }
@@ -114,7 +110,7 @@ function degToRad(d) {
  * Paints a letter F and allows to modify its transform
  * @param {HTMLCanvasElement} canvas
  */
-export function going3D(canvas, gui) {
+export function going3D(canvas: HTMLCanvasElement, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -168,7 +164,7 @@ export function going3D(canvas, gui) {
      * Draws the scene.
      */
     function drawScene() {
-        resizeCanvasToDisplaySize(gl.canvas);
+        resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
 
         // Tell WebGL how to convert from clip space to pixels
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -221,7 +217,7 @@ export function going3D(canvas, gui) {
  * bound to the ARRAY_BUFFER bind point
  * @param {WebGLRenderingContext} gl
  */
-function setGeometry(gl) {
+function setGeometry(gl: WebGLRenderingContext) {
     gl.bufferData(
         gl.ARRAY_BUFFER,
         new Float32Array([
@@ -278,7 +274,7 @@ function setGeometry(gl) {
 }
 
 // Fill the buffer with colors for the 'F'.
-function setColors(gl) {
+function setColors(gl: WebGLRenderingContext) {
     gl.bufferData(
         gl.ARRAY_BUFFER,
         new Uint8Array([

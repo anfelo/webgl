@@ -1,4 +1,4 @@
-import { m4, normalize, transformPoint } from "../matrix.js";
+import { m4, normalize, transformPoint, Vector3 } from "../matrix.js";
 import { resizeCanvasToDisplaySize } from "../canvas.js";
 import { createShader, createProgram } from "../webglutils.js";
 
@@ -113,10 +113,6 @@ function initDebugUI(gui, state, onChangeCallback) {
     });
 }
 
-function radToDeg(r) {
-    return (r * 180) / Math.PI;
-}
-
 function degToRad(d) {
     return (d * Math.PI) / 180;
 }
@@ -125,7 +121,7 @@ function degToRad(d) {
  * Paints a letter F and adds a point light to the scene
  * @param {HTMLCanvasElement} canvas
  */
-export function pointLight(canvas, gui) {
+export function pointLight(canvas: HTMLCanvasElement, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -187,7 +183,7 @@ export function pointLight(canvas, gui) {
      * Draws the scene.
      */
     function drawScene() {
-        resizeCanvasToDisplaySize(gl.canvas);
+        resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
 
         // Tell WebGL how to convert from clip space to pixels
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -210,7 +206,7 @@ export function pointLight(canvas, gui) {
         gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-        gl.enableVertexAttribArray(normalBuffer);
+        gl.enableVertexAttribArray(normalLocation);
         gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
 
         const aspect = state.canvasWidth / state.canvasHeight;
@@ -219,9 +215,9 @@ export function pointLight(canvas, gui) {
         let projectionMatrix = m4.perspective(state.fieldOfViewRadians, aspect, zNear, zFar);
 
         // Compute the camera's matrix
-        const camera = [100, 150, 200];
-        const target = [0, 35, 0];
-        const up = [0, 1, 0];
+        const camera: Vector3 = [100, 150, 200];
+        const target: Vector3 = [0, 35, 0];
+        const up: Vector3 = [0, 1, 0];
         const cameraMatrix = m4.lookAt(camera, target, up);
 
         // Make a view matrix from the camera matrix.
@@ -246,9 +242,9 @@ export function pointLight(canvas, gui) {
         // Set the color to use
         gl.uniform4fv(colorLocation, state.fColorUnit);
         // set the light color
-        gl.uniform3fv(lightColorLocation, normalize(state.lightColorUnit));
+        gl.uniform3fv(lightColorLocation, normalize(state.lightColorUnit as Vector3));
         // set the specular color
-        gl.uniform3fv(specularColorLocation, normalize(state.specularColorUnit));
+        gl.uniform3fv(specularColorLocation, normalize(state.specularColorUnit as Vector3));
 
         // set the light position
         gl.uniform3fv(lightWorldPositionLocation, [20, 30, 60]);
@@ -273,7 +269,7 @@ export function pointLight(canvas, gui) {
  * bound to the ARRAY_BUFFER bind point
  * @param {WebGLRenderingContext} gl
  */
-function setGeometry(gl) {
+function setGeometry(gl: WebGLRenderingContext) {
     const positions = new Float32Array([
         // left column front
         0, 0, 0, 0, 150, 0, 30, 0, 0, 0, 150, 0, 30, 150, 0, 30, 0, 0,
@@ -335,7 +331,7 @@ function setGeometry(gl) {
     matrix = m4.translate(matrix, -50, -75, -15);
 
     for (var ii = 0; ii < positions.length; ii += 3) {
-        var vector = transformPoint(matrix, [positions[ii + 0], positions[ii + 1], positions[ii + 2], 1]);
+        var vector = transformPoint(matrix, [positions[ii + 0], positions[ii + 1], positions[ii + 2]]);
         positions[ii + 0] = vector[0];
         positions[ii + 1] = vector[1];
         positions[ii + 2] = vector[2];
@@ -343,7 +339,7 @@ function setGeometry(gl) {
     gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 }
 
-function setNormals(gl) {
+function setNormals(gl: WebGLRenderingContext) {
     const normals = new Float32Array([
         // left column front
         0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,

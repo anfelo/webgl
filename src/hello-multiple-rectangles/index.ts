@@ -42,7 +42,7 @@ const fragmentShaderSource = `
  * Paints multiple colored rectangles into the canvas
  * @param {HTMLCanvasElement} canvas
  */
-export function helloMultipleRectangles(canvas) {
+export function helloMultipleRectangles(canvas: HTMLCanvasElement) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -69,7 +69,7 @@ export function helloMultipleRectangles(canvas) {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
-    resizeCanvasToDisplaySize(gl.canvas);
+    resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
 
     // Tell WebGL how to convert from clip space to pixels
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -114,7 +114,7 @@ export function helloMultipleRectangles(canvas) {
  * Gets a random int
  * @param {number} range
  */
-function randomInt(range) {
+function randomInt(range: number) {
     return Math.floor(Math.random() * range);
 }
 
@@ -126,7 +126,7 @@ function randomInt(range) {
  * @param {number} width
  * @param {number} height
  */
-function setRectangle(gl, x, y, width, height) {
+function setRectangle(gl: WebGLRenderingContext, x: number, y: number, width: number, height: number) {
     const x1 = x;
     const x2 = x + width;
     const y1 = y;

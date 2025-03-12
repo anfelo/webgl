@@ -30,7 +30,7 @@ const fragmentShaderSource = `
  * Paints a simple triangle into the canvas
  * @param {HTMLCanvasElement} canvas
  */
-export function helloTriangle(canvas) {
+export function helloTriangle(canvas: HTMLCanvasElement) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -49,7 +49,7 @@ export function helloTriangle(canvas) {
     const positions = [0, 0, 0, 0.5, 0.7, 0];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-    resizeCanvasToDisplaySize(gl.canvas);
+    resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
 
     // Tell WebGL how to convert from clip space to pixels
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);

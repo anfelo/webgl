@@ -65,7 +65,7 @@ function initDebugUI(gui, state, onChangeCallback) {
  * Paints a letter F and allows to modify its transform with a matrix
  * @param {HTMLCanvasElement} canvas
  */
-export function transformMatrix2D(canvas, gui) {
+export function transformMatrix2D(canvas: HTMLCanvasElement, gui) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -113,7 +113,8 @@ export function transformMatrix2D(canvas, gui) {
      * Draws the scene.
      */
     function drawScene() {
-        resizeCanvasToDisplaySize(gl.canvas);
+        const glCanvas = gl.canvas as HTMLCanvasElement;
+        resizeCanvasToDisplaySize(glCanvas);
 
         // Tell WebGL how to convert from clip space to pixels
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -156,7 +157,7 @@ export function transformMatrix2D(canvas, gui) {
         gl.uniformMatrix3fv(matrixLocation, false, matrix);
 
         // set the resolution
-        gl.uniform2f(resolutionLocation, gl.canvas.clientWidth, gl.canvas.clientHeight);
+        gl.uniform2f(resolutionLocation, glCanvas.clientWidth, glCanvas.clientHeight);
 
         // Draw the geometry.
         const primitiveType = gl.TRIANGLES;
@@ -172,7 +173,7 @@ export function transformMatrix2D(canvas, gui) {
  * bound to the ARRAY_BUFFER bind point
  * @param {WebGLRenderingContext} gl
  */
-function setGeometry(gl) {
+function setGeometry(gl: WebGLRenderingContext) {
     gl.bufferData(
         gl.ARRAY_BUFFER,
         new Float32Array([

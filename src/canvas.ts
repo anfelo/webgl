@@ -4,7 +4,7 @@
  * @param {number} multiplier
  * @returns {boolean}
  */
-export function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement, multiplier: number): boolean {
+export function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement, multiplier?: number): boolean {
     multiplier = multiplier || 1;
     const width = (canvas.clientWidth * multiplier) | 0;
     const height = (canvas.clientHeight * multiplier) | 0;

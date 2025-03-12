@@ -1,4 +1,4 @@
-function initBuffers(gl) {
+function initBuffers(gl: WebGLRenderingContext) {
     const positionBuffer = initPositionBuffer(gl);
 
     const textureCoordBuffer = initTextureBuffer(gl);
@@ -12,7 +12,7 @@ function initBuffers(gl) {
     };
 }
 
-function initPositionBuffer(gl) {
+function initPositionBuffer(gl: WebGLRenderingContext) {
     // Create a buffer for the square's positions.
     const positionBuffer = gl.createBuffer();
 
@@ -48,34 +48,8 @@ function initPositionBuffer(gl) {
     return positionBuffer;
 }
 
-function initColorBuffer(gl) {
-    const faceColors = [
-        [1.0, 1.0, 1.0, 1.0], // Front face: white
-        [1.0, 0.0, 0.0, 1.0], // Back face: red
-        [0.0, 1.0, 0.0, 1.0], // Top face: green
-        [0.0, 0.0, 1.0, 1.0], // Bottom face: blue
-        [1.0, 1.0, 0.0, 1.0], // Right face: yellow
-        [1.0, 0.0, 1.0, 1.0] // Left face: purple
-    ];
 
-    // Convert the array of colors into a table for all the vertices.
-
-    var colors = [];
-
-    for (var j = 0; j < faceColors.length; ++j) {
-        const c = faceColors[j];
-        // Repeat each color four times for the four vertices of the face
-        colors = colors.concat(c, c, c, c);
-    }
-
-    const colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-
-    return colorBuffer;
-}
-
-function initIndexBuffer(gl) {
+function initIndexBuffer(gl: WebGLRenderingContext) {
     const indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
@@ -129,7 +103,7 @@ function initIndexBuffer(gl) {
     return indexBuffer;
 }
 
-function initTextureBuffer(gl) {
+function initTextureBuffer(gl: WebGLRenderingContext) {
     const textureCoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
 
