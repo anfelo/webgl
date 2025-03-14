@@ -14,6 +14,7 @@ import { spotLight } from "./spot-light";
 import { multipleObjectsScene } from "./multiple-objects-scene";
 
 let gui = new dat.GUI();
+let animManager: { handle: number } = { handle: null };
 let currentItem: string | null = "";
 const initialItem = "hello-triangle";
 
@@ -162,7 +163,7 @@ const items = [
             gui.destroy();
             gui = new dat.GUI();
             useCanvas(canvas3D);
-            multipleObjectsScene(canvas3D, gui);
+            multipleObjectsScene(canvas3D, gui, animManager);
         }
     }
 ];
@@ -199,6 +200,13 @@ function selectMenuItem(itemSlug: string | null) {
 
     if (item) {
         currentItem = itemSlug;
+
+        // Cancel any animation and reset the handle
+        if (animManager?.handle) {
+            cancelAnimationFrame(animManager.handle);
+            animManager.handle = null;
+        }
+
         item.onClick();
     }
 }
