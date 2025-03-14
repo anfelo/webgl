@@ -21,6 +21,21 @@ export type Matrix4 = [
     number
 ];
 
+/** Type Guards **/
+
+export function isVector3(array: number[]): array is Vector3 {
+    return (array as Vector3).length === 3;
+}
+export function isVector4(array: number[]): array is Vector4 {
+    return (array as Vector4).length === 4;
+}
+export function isMatrix3(array: number[]): array is Matrix3 {
+    return (array as Matrix3).length === 3 * 3;
+}
+export function isMatrix4(array: number[]): array is Matrix4 {
+    return (array as Matrix4).length === 4 * 4;
+}
+
 export const m4 = {
     lookAt: function (cameraPosition: Vector3, target: Vector3, up: Vector3): Matrix4 {
         const zAxis = normalize(subtractVectors(cameraPosition, target));
@@ -168,6 +183,34 @@ export const m4 = {
 
     scaling: function (sx: number, sy: number, sz: number): Matrix4 {
         return [sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1];
+    },
+
+    /**
+     * Makes an identity matrix.
+     * @param {Matrix4} dst
+     * @return {Matrix4} dst or a new matrix if none provided
+     */
+    identity: function (dst?: Matrix4 | Float32Array): Matrix4 | Float32Array {
+        dst = dst || new Float32Array(16);
+
+        dst[0] = 1;
+        dst[1] = 0;
+        dst[2] = 0;
+        dst[3] = 0;
+        dst[4] = 0;
+        dst[5] = 1;
+        dst[6] = 0;
+        dst[7] = 0;
+        dst[8] = 0;
+        dst[9] = 0;
+        dst[10] = 1;
+        dst[11] = 0;
+        dst[12] = 0;
+        dst[13] = 0;
+        dst[14] = 0;
+        dst[15] = 1;
+
+        return dst;
     },
 
     vectorMultiply: function (v: Vector4, m: Matrix4): Vector4 {
