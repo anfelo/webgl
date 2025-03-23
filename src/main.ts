@@ -12,6 +12,8 @@ import { directionalLight } from "./directional-light";
 import { pointLight } from "./point-light";
 import { spotLight } from "./spot-light";
 import { multipleObjectsScene } from "./multiple-objects-scene";
+import { textureLight3D } from "./3d-texture-light";
+import { model3DLoading } from "./model-3d-loading";
 
 let gui = new dat.GUI();
 let animManager: { handle: number } = { handle: null };
@@ -67,7 +69,7 @@ const items = [
         }
     },
     {
-        title: "2d Transforms",
+        title: "2D Transforms",
         slug: "2d-transforms",
         onClick: () => {
             gui.destroy();
@@ -77,7 +79,7 @@ const items = [
         }
     },
     {
-        title: "2d Transforms Matrix",
+        title: "2D Transforms Matrix",
         slug: "2d-transforms-matrix",
         onClick: () => {
             gui.destroy();
@@ -87,7 +89,7 @@ const items = [
         }
     },
     {
-        title: "2d Textures",
+        title: "2D Textures",
         slug: "2d-textures",
         onClick: () => {
             gui.destroy();
@@ -97,7 +99,7 @@ const items = [
         }
     },
     {
-        title: "Going 3d",
+        title: "Going 3D",
         slug: "going-3d",
         onClick: () => {
             gui.destroy();
@@ -107,7 +109,7 @@ const items = [
         }
     },
     {
-        title: "Texture 3d",
+        title: "Texture 3D",
         slug: "texture-3d",
         onClick: () => {
             gui.destroy();
@@ -117,7 +119,7 @@ const items = [
         }
     },
     {
-        title: "Camera 3d",
+        title: "Camera 3D",
         slug: "camera-3d",
         onClick: () => {
             gui.destroy();
@@ -157,6 +159,16 @@ const items = [
         }
     },
     {
+        title: "Texture 3D with light",
+        slug: "texture-3d-with-light",
+        onClick: () => {
+            gui.destroy();
+            gui = new dat.GUI();
+            useCanvas(canvas3D);
+            textureLight3D(canvas3D, gui);
+        }
+    },
+    {
         title: "Multiple Objects",
         slug: "multiple-objects",
         onClick: () => {
@@ -164,6 +176,16 @@ const items = [
             gui = new dat.GUI();
             useCanvas(canvas3D);
             multipleObjectsScene(canvas3D, gui, animManager);
+        }
+    },
+    {
+        title: "Model 3D Loading",
+        slug: "model-3D-loading",
+        onClick: () => {
+            gui.destroy();
+            gui = new dat.GUI();
+            useCanvas(canvas3D);
+            model3DLoading(canvas3D, gui, animManager);
         }
     }
 ];
