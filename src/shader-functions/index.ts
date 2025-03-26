@@ -94,6 +94,24 @@ void main() {
 }
 `;
 
+const fragmentShaderSource3 = `
+precision mediump float;
+
+uniform vec2 u_resolution;
+uniform float u_time;
+
+varying vec2 v_uvs;
+
+void main() {
+    vec3 color = vec3(0.0);
+
+    float t = sin((v_uvs.x + u_time) * 100.0);
+
+    color = vec3(t);
+
+    gl_FragColor = vec4(color, 1.0);
+}
+`;
 const shaders = [
     {
         value: "Smooth vs. Linear",
@@ -102,6 +120,10 @@ const shaders = [
     {
         value: "Grid",
         shaderSrc: fragmentShaderSource2
+    },
+    {
+        value: "Vertical Bars",
+        shaderSrc: fragmentShaderSource3
     }
 ];
 
@@ -114,7 +136,7 @@ function initDebugUI(gui, state, onChangeCallback) {
         "shaderName",
         shaders.map(s => s.value)
     ).onChange(value => {
-        state.shader = shaders.find(s => s.value === value)
+        state.shader = shaders.find(s => s.value === value);
         onChangeCallback();
     });
 }
@@ -123,7 +145,7 @@ function initDebugUI(gui, state, onChangeCallback) {
  * Paints a simple rectangle into the canvas
  * @param {HTMLCanvasElement} canvas
  */
-export function shaderFunctions(canvas: HTMLCanvasElement, gui) {
+export function shaderFunctions(canvas: HTMLCanvasElement, gui, animManager: { handle: number }) {
     const gl = canvas.getContext("webgl");
     if (!gl) {
         return;
@@ -134,74 +156,90 @@ export function shaderFunctions(canvas: HTMLCanvasElement, gui) {
         shaderName: shaders[0].value
     };
 
-    initDebugUI(gui, state, () => drawScene(gl, state));
+    initDebugUI(gui, state, () => {
+        if (animManager?.handle) {
+            cancelAnimationFrame(animManager.handle);
+            animManager.handle = null;
+        }
+        initScene();
+    });
 
-    drawScene(gl, state);
-}
+    initScene();
 
-function drawScene(gl: WebGLRenderingContext, state) {
-    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, state.shader.shaderSrc);
+    function initScene() {
+        const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+        const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, state.shader.shaderSrc);
 
-    const program = createProgram(gl, vertexShader, fragmentShader);
+        const program = createProgram(gl, vertexShader, fragmentShader);
 
-    // look up where the vertex data needs to go
-    const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-    const resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
+        // look up where the vertex data needs to go
+        const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+        const resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
+        const timeUniformLocation = gl.getUniformLocation(program, "u_time");
 
-    // three 2d points
-    const positions = [
-        -1,
-        -1, // top left
-        1,
-        -1, // top right
-        -1,
-        1, // bottom left
-        1,
-        1 // bottom right
-    ];
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+        // three 2d points
+        const positions = [
+            -1,
+            -1, // top left
+            1,
+            -1, // top right
+            -1,
+            1, // bottom left
+            1,
+            1 // bottom right
+        ];
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-    // create an EBO to instruct webgl how to paint the rectangle with the
-    // previous positions
-    const indices = [0, 1, 2, 1, 2, 3];
-    const indicesBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+        // create an EBO to instruct webgl how to paint the rectangle with the
+        // previous positions
+        const indices = [0, 1, 2, 1, 2, 3];
+        const indicesBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
-    resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
+        resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
 
-    // Tell WebGL how to convert from clip space to pixels
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        animManager.handle = requestAnimationFrame(drawScene);
 
-    // Clear the canvas
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+        function drawScene(time: number) {
+            time = time * 0.0001 + 5;
 
-    // Disable the depth buffer
-    gl.disable(gl.DEPTH_TEST);
+            // Tell WebGL how to convert from clip space to pixels
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-    // Turn off culling. By default backfacing triangles
-    // will be culled.
-    gl.disable(gl.CULL_FACE);
+            // Clear the canvas
+            gl.clearColor(0, 0, 0, 0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
 
-    // Tell it to use our program (pair of shaders)
-    gl.useProgram(program);
+            // Disable the depth buffer
+            gl.disable(gl.DEPTH_TEST);
 
-    // Turn on the attribute
-    gl.enableVertexAttribArray(positionAttributeLocation);
+            // Turn off culling. By default backfacing triangles
+            // will be culled.
+            gl.disable(gl.CULL_FACE);
 
-    // Bind the position buffer.
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            // Tell it to use our program (pair of shaders)
+            gl.useProgram(program);
 
-    // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+            // Turn on the attribute
+            gl.enableVertexAttribArray(positionAttributeLocation);
 
-    gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+            // Bind the position buffer.
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-    // draw elements
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+            // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+            gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+
+            gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+            gl.uniform1f(timeUniformLocation, time);
+
+            // draw elements
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
+            gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+
+            animManager.handle = requestAnimationFrame(drawScene);
+        }
+    }
 }

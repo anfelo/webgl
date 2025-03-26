@@ -76,7 +76,7 @@ const items = [
             gui.destroy();
             gui = new dat.GUI();
             useCanvas(canvas2D);
-            shaderFunctions(canvas2D, gui);
+            shaderFunctions(canvas2D, gui, animManager);
         }
     },
     {
@@ -233,7 +233,6 @@ function selectMenuItem(itemSlug: string | null) {
 
     if (item) {
         currentItem = itemSlug;
-
         // Cancel any animation and reset the handle
         if (animManager?.handle) {
             cancelAnimationFrame(animManager.handle);
