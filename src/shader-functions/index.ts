@@ -76,7 +76,10 @@ void main() {
     // Lines
     vec2 pos = center * u_resolution / 100.0;
     float value1 = pos.x;
-    float value2 = mod(pos.x, 1.43);
+    // float value2 = mod(pos.x, 1.43);
+    // float value2 = abs(pos.x);
+    // float value2 = clamp(pos.x, 1.0, 2.0);
+    float value2 = fract(pos.x);
     float functionLine1 = smoothstep(0.0, 0.075, abs(pos.y - value1));
     float functionLine2 = smoothstep(0.0, 0.075, abs(pos.y - value2));
 
