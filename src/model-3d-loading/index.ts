@@ -1,8 +1,35 @@
 import { m4, normalize, Vector3 } from "../matrix";
 import { resizeCanvasToDisplaySize } from "../canvas";
 import { createBufferInfoFromArrays, createProgramInfo, setAttributes, setUniforms } from "../webglutils";
-import { fragmentShaderSource } from "./default.frag";
-import { vertexShaderSource } from "./default.vert";
+
+const vertexShaderSource = `
+attribute vec4 a_position;
+attribute vec3 a_normal;
+
+uniform mat4 u_projection;
+uniform mat4 u_view;
+uniform mat4 u_world;
+
+varying vec3 v_normal;
+
+void main() {
+    gl_Position = u_projection * u_view * u_world * a_position;
+    v_normal = mat3(u_world) * a_normal;
+}`;
+
+const fragmentShaderSource = `
+precision mediump float;
+
+varying vec3 v_normal;
+
+uniform vec4 u_diffuse;
+uniform vec3 u_light_direction;
+
+void main () {
+    vec3 normal = normalize(v_normal);
+    float fakeLight = dot(u_light_direction, normal) * .5 + .5;
+    gl_FragColor = vec4(u_diffuse.rgb * fakeLight, u_diffuse.a);
+}`;
 
 function initDebugUI(gui, state, onChangeCallback) {
     gui.remember(state);
@@ -16,6 +43,11 @@ function initDebugUI(gui, state, onChangeCallback) {
             state.fieldOfViewRadians = degToRad(state.fieldOfViewDeg);
             onChangeCallback();
         });
+    f0.add(state, "cameraPosZ")
+        .min(-200)
+        .max(200)
+        .step(1)
+        .onChange(() => onChangeCallback);
 
     const f1 = gui.addFolder("F");
     f1.addColor(state, "fColor").onChange(newColor => {
@@ -41,6 +73,7 @@ export async function model3DLoading(canvas: HTMLCanvasElement, gui: any, animMa
     const state = {
         fieldOfViewRadians: degToRad(60),
         fieldOfViewDeg: 60,
+        cameraPosZ: 4,
         canvasWidth: canvas.clientWidth,
         canvasHeight: canvas.clientHeight,
         fColor: [51, 255, 51, 255],
@@ -63,8 +96,7 @@ export async function model3DLoading(canvas: HTMLCanvasElement, gui: any, animMa
 
     const arrays = {
         a_position: { numComponents: 3, data: data.position },
-        a_normal: { numComponents: 3, data: data.normal },
-        a_texcoord: { numComponents: 3, data: data.texcoord }
+        a_normal: { numComponents: 3, data: data.normal }
     };
 
     const bufferInfo = createBufferInfoFromArrays(gl, arrays);
@@ -101,7 +133,7 @@ export async function model3DLoading(canvas: HTMLCanvasElement, gui: any, animMa
         let projectionMatrix = m4.perspective(state.fieldOfViewRadians, aspect, zNear, zFar);
 
         // Compute the camera's matrix
-        const camera: Vector3 = [0, 0, 4];
+        const camera: Vector3 = [0, 0, state.cameraPosZ];
         const target: Vector3 = [0, 0, 0];
         const up: Vector3 = [0, 1, 0];
         const cameraMatrix = m4.lookAt(camera, target, up);
@@ -117,7 +149,6 @@ export async function model3DLoading(canvas: HTMLCanvasElement, gui: any, animMa
 
         setUniforms(gl, programInfo, sharedUniforms);
 
-        debugger
         setAttributes(gl, programInfo, bufferInfo);
 
         setUniforms(gl, programInfo, {

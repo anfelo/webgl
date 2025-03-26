@@ -14,6 +14,7 @@ import { spotLight } from "./spot-light";
 import { multipleObjectsScene } from "./multiple-objects-scene";
 import { textureLight3D } from "./3d-texture-light";
 import { model3DLoading } from "./model-3d-loading";
+import { shaderFunctions } from "./shader-functions";
 
 let gui = new dat.GUI();
 let animManager: { handle: number } = { handle: null };
@@ -66,6 +67,16 @@ const items = [
             gui.hide();
             useCanvas(canvas2D);
             helloMultipleRectangles(canvas2D);
+        }
+    },
+    {
+        title: "Shader Functions",
+        slug: "shader-functions",
+        onClick: () => {
+            gui.destroy();
+            gui = new dat.GUI();
+            useCanvas(canvas2D);
+            shaderFunctions(canvas2D, gui);
         }
     },
     {
